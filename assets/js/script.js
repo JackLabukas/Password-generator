@@ -3,7 +3,6 @@ var specialCharacters = [
   "@",
   "%",
   "+",
-  "\\",
   "/",
   "'",
   "!",
@@ -12,7 +11,6 @@ var specialCharacters = [
   "^",
   "?",
   ":",
-  ",",
   ")",
   "(",
   "}",
@@ -89,19 +87,19 @@ var upperCasedCharacters = [
 ];
 
 //declare variables
-var userLength = 0;
+var passLength = 0; // default value
 var userLower = false; // default value
 var userUpper = false; // default value
-var userNumeric = false;
-var userSpecial = false;
-var userPasswordArr = [];
-
+var userNumeric = false; // default value
+var userSpecial = false; // default value
+var passwordArr = []; // default value
+var password = ""; // default value
 // Function to prompt user for password options
 function getPasswordOptions() {
   var userChoseLength = prompt(
     "How long do you want your password to be? 10-64"
   );
-  userLength = userChoseLength;
+  passLength = userChoseLength;
   var isLower = confirm("Do you want lowercase?");
   userLower = isLower;
   var isUpper = confirm("Do you want UPPERCASE?");
@@ -110,45 +108,37 @@ function getPasswordOptions() {
   userNumeric = isNumbers;
   var isSpecial = confirm("Do you want special characters?");
   userSpecial = isSpecial;
-  generatePassword();
-  // console.log(userSpecial);
-  // console.log(userNumeric);
-  // console.log(userUpper);
-  // console.log(userLower);
-  // console.log(userLength);
 }
-getPasswordOptions();
 
-// Function for getting a random element from an array
-function getRandom(arr) {
-  var randomArrElement = arr[Math.floor(Math.random() * arr.length)];
-  // console.log(randomArrElement);
-  return randomArrElement;
+getPasswordOptions();
+choices();
+
+function choices() {
+  if (userLower) {
+    // based on choices , arrays will be pushed on one passwordArr array
+    passwordArr.push(lowerCasedCharacters);
+  }
+  if (userUpper) {
+    passwordArr.push(upperCasedCharacters);
+  }
+  if (userSpecial) {
+    passwordArr.push(specialCharacters);
+  }
+  if (userNumeric) {
+    passwordArr.push(numericCharacters);
+  }
 }
+// string passwordArr , replace ',' with empty space
+let passwordStr = passwordArr.toString().replaceAll(",", "");
 
 // Function to generate password with user input
 function generatePassword() {
-  if (userLower) {
-    // console.log(getRandom(lowerCasedCharacters));
-    userPasswordArr.push(getRandom(lowerCasedCharacters));
+  for (var i = 0; i < passLength; i++) {
+    var randomNum = Math.floor(Math.random() * passwordStr.length);
+    password += passwordStr.substring(randomNum, randomNum + 1);
   }
-  if (userUpper) {
-    userPasswordArr.push(getRandom(upperCasedCharacters));
-  }
-  if (userSpecial) {
-    userPasswordArr.push(getRandom(specialCharacters));
-  }
-  if (userNumeric) {
-    userPasswordArr.push(getRandom(numericCharacters));
-  }
-  if (!userLower && !userUpper && !userSpecial && !userNumeric) {
-    alert("Please select atleast one character type.");
-  }
+  return password;
 }
-
-console.log(userPasswordArr);
-
-// generatePassword();
 
 // Get references to the #generate element
 var generateBtn = document.querySelector("#generate");
@@ -157,9 +147,20 @@ var generateBtn = document.querySelector("#generate");
 function writePassword() {
   var password = generatePassword();
   var passwordText = document.querySelector("#password");
-
   passwordText.value = password;
-}
 
+  if (passwordText.value) {
+    generateBtn.disabled = true;
+  }
+  if (passLength < 10 || passLength > 64) {
+    generateBtn.disabled = true;
+    alert("Please reload the page and select between 10 and 64 characters");
+    passwordText.value = null;
+  }
+  if (!userLower && !userUpper && !userSpecial && !userNumeric) {
+    generateBtn.disabled = true;
+    alert("Please reload the page and select atleast one character type");
+  }
+}
 // Add event listener to generate button
 generateBtn.addEventListener("click", writePassword);
